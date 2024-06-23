@@ -18,7 +18,9 @@ A aplicação será construída com as regras de negócio em uma API Node.js com
 ### 2. Consulta
 
 2.1 Deve ser possível agendar uma consulta;
+
 2.2 Deve ser possível visualizar uma consulta agendada;
+
 2.3 Deve ser possível visualizar todas as consultas agendadas;
 2.4 Deve ser possível visualizar as consultas de um determinado dia;
 2.5 Deve ser possível editar uma consulta agendada;
