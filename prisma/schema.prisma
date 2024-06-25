@@ -13,28 +13,117 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model PatientUser {
-  id        String   @id @default(cuid())
-  fullName  String
-  cns       String   @unique
-  cpf       String   @unique
-  phone     String
-  address   String
-  email     String   @unique
-  password  String
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+model UserAdmin {
+  id          String    @id @default(cuid())
+  fullName    String
+  cpf         String    @unique
+  birthDate   DateTime
+  email       String    @unique
+  address     String
+  profile     String    @default("administrator")
+  password    String
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+}
+
+model UserDoctor {
+  id          String    @id @default(cuid())
+  fullName    String
+  crm         String    @unique
+  cpf         String    @unique
+  birthDate   DateTime
+  email       String    @unique
+  phone       String
+  address     String
+  profile     String    @default("doctor")
+  isAdmin     Boolean   @default(false)
+  password    String
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  schedules   MedicalConsultationSchedule[]
   consultations MedicalConsultation[]
+  patients    UserPatient[] @relation("DoctorPatients")
 }
 
+model UserOperator {
+  id          String    @id @default(cuid())
+  fullName    String
+  cpf         String    @unique
+  birthDate   DateTime
+  email       String    @unique
+  phone       String
+  address     String
+  profile     String    @default("operator")
+  password    String
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  schedules   MedicalConsultationSchedule[]
+  patients    UserPatient[] @relation("OperatorPatients")
+}
 
-// TODO: add corrects fields to the MedicalConsultation model
+model UserPatient {
+  id            String                @id @default(cuid())
+  fullName      String
+  sex           String
+  socialName    String
+  cns           String                @unique
+  cpf           String                @unique
+  birthDate     DateTime
+  bloodType     String
+  phone         String
+  address       String
+  createdAt     DateTime              @default(now())
+  updatedAt     DateTime              @updatedAt
+  consultations MedicalConsultation[]
+  schedules     MedicalConsultationSchedule[]
+  doctors       UserDoctor[]          @relation("DoctorPatients")
+  operators     UserOperator[]        @relation("OperatorPatients")
+}
+
+model MedicalConsultationSchedule {
+  id                    String       @id @default(cuid())
+  consultationDate      DateTime
+  consultationHour      String
+  doctorId              String       // Foreign key to UserDoctor
+  doctor                UserDoctor   @relation(fields: [doctorId], references: [id])
+  operatorId            String       // Foreign key to UserOperator
+  operator              UserOperator @relation(fields: [operatorId], references: [id])
+  patientId             String       // Foreign key to UserPatient
+  patient               UserPatient  @relation(fields: [patientId], references: [id])
+  consultation          MedicalConsultation?
+  createdAt             DateTime     @default(now())
+  updatedAt             DateTime     @updatedAt
+
+  @@index([patientId])
+  @@index([doctorId])
+  @@index([operatorId])
+}
+
 model MedicalConsultation {
-  id           String       @id @default(cuid())
-  date         DateTime
-  description  String
-  patient      PatientUser  @relation(fields: [patientId], references: [id])
-  patientId    String
-  createdAt    DateTime     @default(now())
-  updatedAt    DateTime     @updatedAt
+  id                    String       @id @default(cuid())
+  schedule              MedicalConsultationSchedule @relation(fields: [scheduleId], references: [id])
+  scheduleId            String       @unique // Foreign key to MedicalConsultationSchedule
+  weight                Float
+  height                Float
+  imc                   Float
+  maximumBloodPressure  Float
+  minimumBloodPressure  Float
+  temperature           Float
+  heartRate             Float
+  respiratoryRate       Float
+  capillaryBloodGlucose Float
+  saturation            Float
+  anamnese              String
+  patientId             String       // Foreign key to UserPatient
+  patient               UserPatient  @relation(fields: [patientId], references: [id])
+  doctorId              String       // Foreign key to UserDoctor
+  doctor                UserDoctor   @relation(fields: [doctorId], references: [id])
+  createdAt             DateTime     @default(now())
+  updatedAt             DateTime     @updatedAt
+
+  @@index([patientId])
+  @@index([doctorId])
 }
+
+
+
