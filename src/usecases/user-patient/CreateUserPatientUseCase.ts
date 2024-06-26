@@ -1,18 +1,25 @@
 import { injectable } from "tsyringe";
 import { PasswordProvider } from "../../providers/PasswordProvider";
-import { CreateUserDTO } from "../../dtos/users-patients/CreateUserPatientDTO";
+import { CreateUserPatientDTO } from "../../dtos/users-patients/CreateUserPatientDTO";
+import { UserPatientRepository } from "../../repositories/user-patient/UserPatientRepository";
 
 @injectable()
-class CreateUserUseCase {
-    constructor(private passwordProvider: PasswordProvider) {}
+class CreateUserPatientUseCase {
+    constructor(private userPatientRepository: UserPatientRepository) {}
 
-    async execute(data: CreateUserDTO) {
-        const hashedPassword = await this.passwordProvider.createHash(
-            data.password
+    async execute(data: CreateUserPatientDTO) {
+        const userPatientExists = await this.userPatientRepository.findByCpf(
+            data.cpf
         );
 
-        return "User created successfully!";
+        if (userPatientExists) {
+            throw new Error("Patient already exists");
+        }
+
+        const newUserPatient = await this.userPatientRepository.create(data);
+
+        return newUserPatient;
     }
 }
 
-export { CreateUserUseCase };
+export { CreateUserPatientUseCase };

@@ -1,35 +1,28 @@
 import prismaClient from "../../prisma";
 import { IUserPatientRepository } from "./IUserPatientRepository";
+import { CreateUserPatientDTO } from "../../dtos/users-patients/CreateUserPatientDTO";
 import { injectable } from "tsyringe";
 
 @injectable()
 class UserPatientRepository implements IUserPatientRepository {
-    async create(user: {
-        name: string;
-        email: string;
-        password: string;
-    }): Promise<any> {
-        const { name, email, password } = user;
-
-        const newUser = await prismaClient.user.create({
+    async create(newUserPatientData: CreateUserPatientDTO): Promise<any> {
+        const newUserPatient = await prismaClient.userPatient.create({
             data: {
-                name,
-                email,
-                password,
+                ...newUserPatientData,
             },
         });
 
-        return newUser;
+        return newUserPatient;
     }
 
-    async findByEmail(email: string): Promise<any> {
-        const user = await prismaClient.user.findFirst({
+    async findByCpf(cpf: string): Promise<any> {
+        const userPatient = await prismaClient.userPatient.findFirst({
             where: {
-                email,
+                cpf,
             },
         });
 
-        return user;
+        return userPatient;
     }
 }
 

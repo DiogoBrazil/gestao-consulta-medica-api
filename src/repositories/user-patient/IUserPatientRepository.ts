@@ -1,9 +1,17 @@
 export interface IUserPatientRepository {
     create(user: {
-        name: string;
-        email: string;
-        password: string;
+        fullName: string;
+        sex: string;
+        socialName?: string;
+        cns: string;
+        cpf: string;
+        birthDate: string;
+        bloodType?: string;
+        phone: string;
+        address: string;
+        createdAt: Date;
+        updatedAt: Date;
     }): Promise<any>;
 
-    findByEmail(email: string): Promise<any> | null;
+    findByCpf(cpf: string): Promise<any> | null;
 }

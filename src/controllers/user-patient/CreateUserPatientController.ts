@@ -5,40 +5,27 @@ import { validate } from "class-validator";
 import { HttpRequest } from "../../adapters/interfaces/server/IHttpRequest";
 import { HttpResponse } from "../../adapters/interfaces/server/IHttpResponse";
 import { Route } from "../../adapters/interfaces/server/IRoute";
-import { CreateUserUseCase } from "../../usecases/user-patient/CreateUserPatientUseCase";
-import { CreateUserDTO } from "../../dtos/users-patients/CreateUserPatientDTO";
+import { CreateUserPatientUseCase } from "../../usecases/user-patient/CreateUserPatientUseCase";
+import { CreateUserPatientDTO } from "../../dtos/users-patients/CreateUserPatientDTO";
 
 @injectable()
-class CreateUserController implements Route {
+class CreateUserPatientController implements Route {
     constructor(
-        @inject(CreateUserUseCase) private createUserService: CreateUserUseCase
+        @inject(CreateUserPatientUseCase)
+        private createUserPatientUseCase: CreateUserPatientUseCase
     ) {}
 
-    async route(httpRequest: HttpRequest): Promise<HttpResponse> {
+    async handle(httpRequest: HttpRequest): Promise<HttpResponse> {
         try {
-            const createUserDTO = plainToInstance(
-                CreateUserDTO,
-                httpRequest.body
-            );
-            const errors = await validate(createUserDTO);
+            const data = httpRequest.body as CreateUserPatientDTO;
 
-            if (errors.length > 0) {
-                return {
-                    statusCode: 400,
-                    body: errors,
-                };
-            }
-
-            const { name, email, password } = httpRequest.body;
-            const user = await this.createUserService.execute({
-                name,
-                email,
-                password,
+            const newPatientUser = await this.createUserPatientUseCase.execute({
+                ...data,
             });
 
             return {
                 statusCode: 200,
-                body: user,
+                body: newPatientUser,
             };
         } catch (err) {
             return {
@@ -49,4 +36,4 @@ class CreateUserController implements Route {
     }
 }
 
-export { CreateUserController };
+export { CreateUserPatientController };
