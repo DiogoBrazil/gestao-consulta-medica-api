@@ -9,7 +9,6 @@ const userPatientRoutes = (adapter: ServerRouteAdapter) => {
     );
 
     adapter.registerRoute("post", "/userPatient", createUserPatientController);
-    // Adicione mais rotas conforme necessário
 };
 
 export { userPatientRoutes };
